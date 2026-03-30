@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   list-s3:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, k3s]
 
     steps:
       - name: Checkout repo
