@@ -1,0 +1,23 @@
+name: Terraform Targeted Destroy
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Terraform resource to destroy"
+        required: true
+        type: string
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Destroy Target
+        run: terraform destroy -auto-approve -target="${{ github.event.inputs.target }}"
