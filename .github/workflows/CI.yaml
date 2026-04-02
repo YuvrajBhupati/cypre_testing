@@ -18,11 +18,31 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install AWS CLI
+      - name: Install required tools
         run: |
+          # Update package index
+          sudo apt-get update
+
+          # Install Docker
+          sudo apt-get install -y docker.io
+          sudo systemctl start docker
+          sudo systemctl enable docker
+          docker --version
+
+          # Install AWS CLI v2
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
           sudo ./aws/install
+          aws --version
+
+          # Install unzip and other utilities if missing
+          sudo apt-get install -y unzip curl git build-essential python3
+
+          # Verify tools
+          which docker
+          which aws
+          which git
+          python3 --version
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
