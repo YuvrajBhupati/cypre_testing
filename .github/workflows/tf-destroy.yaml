@@ -17,7 +17,4 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
-        run: terraform init
-
-      - name: Destroy Target
-        run: terraform destroy -auto-approve -target="${{ github.event.inputs.target }}"
+        run: terraform inin
