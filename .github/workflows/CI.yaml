@@ -5,7 +5,7 @@ on:
 
 jobs:
   hello:
-    runs-on: eks
+    runs-on: [self-hosted, linux, eks]
 
     steps:
       - name: Checkout repository
