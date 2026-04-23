@@ -11,6 +11,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Sleep for demo
+        run: |
+          echo "Sleeping for demo..."
+          sleep 60
+    
       - name: Print sample message
         run: |
           echo "Successfully Completed!!" 
