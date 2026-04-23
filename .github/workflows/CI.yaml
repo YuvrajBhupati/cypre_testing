@@ -1,100 +1,19 @@
-name: List S3 Bucket
+name: Self-Hosted Runner
 
 on:
-  workflow_dispatch:   
-
-env:
-  ECR_REPOSITORY: backend
-
-permissions:
-  id-token: write      
-  contents: read
+  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-  list-s3:
-    #runs-on: [self-hosted, k3s]
-    runs-on: ubuntu-latest
+  hello:
+    runs-on: eks
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install required tools
+      - name: Print sample message
         run: |
-
-          # Install AWS CLI v2
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install
-          aws --version
-
-          # Install unzip and other utilities if missing
-          sudo apt-get install -y unzip curl git build-essential python3
-
-          # Verify tools
-          which aws
-          which git
-          python3 --version
-
-      - name: Install Docker CE
-        run: |
-          # Remove old versions if any
-          sudo apt-get remove -y docker docker-engine docker.io containerd runc || true
-
-          # Update package index
-          sudo apt-get update
-          sudo apt-get install -y \
-          ca-certificates \
-          curl \
-          gnupg \
-          lsb-release
-
-          # Add Docker’s official GPG key
-          sudo mkdir -p /etc/apt/keyrings
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-
-          # Add Docker repository
-          echo \
-            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-            https://download.docker.com/linux/ubuntu \
-            $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-          # Install Docker
-          sudo apt-get update
-          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-          # Start Docker
-          sudo systemctl enable docker
-          sudo systemctl start docker
-
-          docker --version
-
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::795488789172:role/github-action-role
-          aws-region: us-east-1
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      #  Pull ANY public image
-      - name: Pull public image
-        run: docker pull nginx:latest
-
-      #  Tag it for ECR
-      - name: Tag image
-        run: |
-          docker tag nginx:latest \
-          ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
-
-      # Push to ECR
-      - name: Push to ECR
-        run: |
-          docker push \
-          ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
-      
-      - name: List S3 bucket
-        run: |
-          aws s3 ls
+          echo "Successfully Completed!!" 
