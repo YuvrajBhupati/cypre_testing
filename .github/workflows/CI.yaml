@@ -1,21 +1,50 @@
-name: Self-Hosted Runner
+name: Build and Push Backend & Frontend Images
 
 on:
+  push:
+    branches:
+      - s3-deploy
+
   workflow_dispatch:
 
 jobs:
-  hello:
-    runs-on: [self-hosted, linux, eks]
+  build-and-push:
+    runs-on: [ubuntu-latest]
+
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Sleep for demo
+      - name: Deploy Helm charts
+        shell: bash
         run: |
-          echo "Sleeping for demo..."
-          sleep 60
-    
-      - name: Print sample message
+          if [ -d "helm" ] && find helm -mindepth 1 -maxdepth 1 -type d | grep -q .; then
+            echo "Helm charts found. Deploying..."
+
+            for chart in helm/*; do
+              if [ -d "$chart" ]; then
+                name=$(basename "$chart")
+                echo "Deploying Helm chart: $name"
+
+                helm upgrade --install "$name" "$chart" \
+                --namespace "${NAMESPACE}" \
+                --create-namespace
+              fi
+           done
+          else
+            echo "No Helm charts found. Skipping..."
+          fi
+
+      - name: Apply Kubernetes manifests
+        shell: bash
         run: |
-          echo "Successfully Completed!!" 
+          if [ -d "kubernetes" ] && find kubernetes -type f \( -name "*.yaml" -o -name "*.yml" \) | grep -q .; then
+            echo "Kubernetes manifests found. Applying..."
+            kubectl apply -f kubernetes/
+          else
+            echo "No Kubernetes manifests found. Skipping..."
+          fi
