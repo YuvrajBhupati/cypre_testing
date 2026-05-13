@@ -10,7 +10,9 @@ on:
 jobs:
   build-and-push:
     runs-on: [ubuntu-latest]
-
+    container:
+      image: summerwind/actions-runner:latest
+      
     permissions:
       id-token: write
       contents: read
