@@ -72,7 +72,7 @@ jobs:
           fi
 
       - name: Docker build (only if dockerfile/ changed)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/s3-deploy'
         env:
             VERSION_TAG: ${{ github.sha }}
         shell: bash
