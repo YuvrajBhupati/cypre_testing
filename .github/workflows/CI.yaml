@@ -79,7 +79,7 @@ jobs:
         run: |
           if git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep -q '^dockerfile/'; then
             echo "dockerfile/ changed → building image"
-            docker build -f dockerfile/Dockerfile -t test:latest -t "test:${VERSION_TAG}" .
+            docker build -f dockerfile/Dockerfile -t test:latesty -t "test:${VERSION_TAG}" .
             docker images
           else
             echo "No dockerfile/ changes → skipping docker build"
