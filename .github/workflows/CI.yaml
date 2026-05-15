@@ -73,11 +73,14 @@ jobs:
 
       - name: Docker build (only if dockerfile/ changed)
         if: github.event_name == 'push'
+        env:
+            VERSION_TAG: ${{ github.sha }}
         shell: bash
         run: |
           if git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep -q '^dockerfile/'; then
             echo "dockerfile/ changed → building image"
-            docker build -f dockerfile/Dockerfile -t test:latest .
+            docker build -f dockerfile/Dockerfile -t test:latest -t "test:${VERSION_TAG}" .
+            docker images
           else
             echo "No dockerfile/ changes → skipping docker build"
           fi
