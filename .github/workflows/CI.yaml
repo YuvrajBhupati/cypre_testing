@@ -70,9 +70,9 @@ jobs:
           fi
 
       - name: Build & push Docker image
-        if: github.event_name == 'push' && (contains(join(github.event.commits.*.modified, ','), 'dockerfile/') || contains(join(github.event.commits.*.added, ','), 'dockerfile/'))
+        if: github.event_name == 'push' && contains(toJson(github.event.commits), 'dockerfile/')
         env:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           echo "Dockerfile changed → building image"
-          docker build -t test:latest dockerfile/ .
+          docker build -f dockerfile/Dockerfile -t test:latest .
