@@ -1,2 +1,2 @@
 FROM alpine:3.20
-CMD ["sh", "-c", "echo Hello from Docker! && sleep 4"]
+CMD ["sh", "-c", "echo Hello from Docker! && sleep 3"]
