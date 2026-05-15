@@ -68,3 +68,14 @@ jobs:
           else
             echo "No Kubernetes manifests found. Skipping..."
           fi
+
+      - name: Build & push Docker image
+        if: github.event_name == 'push' && (contains(join(github.event.commits.*.modified, ','), 'dockerfile/') || contains(join(github.event.commits.*.added, ','), 'dockerfile/'))
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "Dockerfile changed → building image"
+          aws ecr get-login-password --region "${AWS_REGION}" \
+          | docker login --username AWS --password-stdin "${ECR_INFRA_REPO}"
+          docker build -f dockerfile/Dockerfile -t "${ECR_INFRA_REPO}:$IMAGE_TAG" .
+          docker push "${ECR_INFRA_REPO}:$IMAGE_TAG"
