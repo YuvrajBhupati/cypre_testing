@@ -101,12 +101,17 @@ jobs:
 
             echo "Building image: ${image_name}"
 
-            # ✅ CHANGED: dynamic Dockerfile instead of fixed dockerfiles/Dockerfile
-            docker build \
-              -f "$file" \
-              # -t "${ECR_INFRA_REPO}:${image_name}-${VERSION_TAG}" \
-              # -t "${ECR_INFRA_REPO}:${image_name}-latest" \
-              .
+            # # ✅ CHANGED: dynamic Dockerfile instead of fixed dockerfiles/Dockerfile
+            # docker build \
+            #   -f "$file" \
+            #   -t "${ECR_INFRA_REPO}:${image_name}-${VERSION_TAG}" \
+            #   -t "${ECR_INFRA_REPO}:${image_name}-latest" \
+            #   .
+
+          docker build \
+            -f "$file" \
+            -t test-${image_name} \
+            .
 
             echo "Pushing image: ${image_name}"
             docker images
