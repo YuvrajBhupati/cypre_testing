@@ -71,37 +71,31 @@ jobs:
             echo "No Kubernetes manifests found. Skipping..."
           fi
 
-      - name: Build & Push Docker images (multiple)
+      - name: Build & Push Docker images
         env:
           VERSION_TAG: ${{ github.sha }}
         shell: bash
         run: |
           CHANGED_FILES=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep '^dockerfiles/.*\.dockerfile' || true)
 
-          # ✅ SAME (but condition adjusted for list instead of single)
           if [ -z "$CHANGED_FILES" ]; then
             echo "No Dockerfile changes → skipping build"
             exit 0
           fi
 
-          # ✅ NEW: print which Dockerfiles changed
           echo "Changed Dockerfiles:"
           echo "$CHANGED_FILES"
 
-          # # ✅ SAME: login (no change)
           # aws ecr get-login-password --region "${AWS_REGION}" \
           # | docker login --username AWS --password-stdin "${ECR_INFRA_REPO}"
 
-          # ✅ NEW: loop through each changed Dockerfile
           for file in $CHANGED_FILES; do
             echo "Processing $file"
 
-            # ✅ NEW: extract name from file (A.dockerfile → A)
             image_name=$(basename "$file" .dockerfile)
 
             echo "Building image: ${image_name}"
 
-            # # ✅ CHANGED: dynamic Dockerfile instead of fixed dockerfiles/Dockerfile
             # docker build \
             #   -f "$file" \
             #   -t "${ECR_INFRA_REPO}:${image_name}-${VERSION_TAG}" \
@@ -115,7 +109,6 @@ jobs:
 
             echo "Pushing image: ${image_name}"
             docker images
-            # # ✅ CHANGED: push per-image
             # docker push "${ECR_INFRA_REPO}:${image_name}-${VERSION_TAG}"
             # docker push "${ECR_INFRA_REPO}:${image_name}-latest"
           done
