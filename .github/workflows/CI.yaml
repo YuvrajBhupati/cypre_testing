@@ -88,9 +88,9 @@ jobs:
           echo "Changed Dockerfiles:"
           echo "$CHANGED_FILES"
 
-          # ✅ SAME: login (no change)
-          aws ecr get-login-password --region "${AWS_REGION}" \
-          | docker login --username AWS --password-stdin "${ECR_INFRA_REPO}"
+          # # ✅ SAME: login (no change)
+          # aws ecr get-login-password --region "${AWS_REGION}" \
+          # | docker login --username AWS --password-stdin "${ECR_INFRA_REPO}"
 
           # ✅ NEW: loop through each changed Dockerfile
           for file in $CHANGED_FILES; do
@@ -109,8 +109,8 @@ jobs:
               .
 
             echo "Pushing image: ${image_name}"
-  
-            # ✅ CHANGED: push per-image
-            docker push "${ECR_INFRA_REPO}:${image_name}-${VERSION_TAG}"
-            docker push "${ECR_INFRA_REPO}:${image_name}-latest"
+            docker images
+            # # ✅ CHANGED: push per-image
+            # docker push "${ECR_INFRA_REPO}:${image_name}-${VERSION_TAG}"
+            # docker push "${ECR_INFRA_REPO}:${image_name}-latest"
           done
