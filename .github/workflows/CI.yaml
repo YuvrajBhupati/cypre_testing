@@ -104,8 +104,8 @@ jobs:
             # ✅ CHANGED: dynamic Dockerfile instead of fixed dockerfiles/Dockerfile
             docker build \
               -f "$file" \
-              -t "${ECR_INFRA_REPO}:${image_name}-${VERSION_TAG}" \
-              -t "${ECR_INFRA_REPO}:${image_name}-latest" \
+              # -t "${ECR_INFRA_REPO}:${image_name}-${VERSION_TAG}" \
+              # -t "${ECR_INFRA_REPO}:${image_name}-latest" \
               .
 
             echo "Pushing image: ${image_name}"
