@@ -71,16 +71,46 @@ jobs:
             echo "No Kubernetes manifests found. Skipping..."
           fi
 
-      - name: Docker build (only if dockerfile/ changed)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/s3-deploy'
+      - name: Build & Push Docker images (multiple)
         env:
-            VERSION_TAG: ${{ github.sha }}
+          VERSION_TAG: ${{ github.sha }}
         shell: bash
         run: |
-          if git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep -q '^dockerfile/'; then
-            echo "dockerfile/ changed → building image"
-            docker build -f dockerfile/Dockerfile -t test:latesty -t "test:${VERSION_TAG}" .
-            docker images
-          else
-            echo "No dockerfile/ changes → skipping docker build"
+          CHANGED_FILES=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep '^dockerfiles/.*\.dockerfile' || true)
+
+          # ✅ SAME (but condition adjusted for list instead of single)
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No Dockerfile changes → skipping build"
+            exit 0
           fi
+
+          # ✅ NEW: print which Dockerfiles changed
+          echo "Changed Dockerfiles:"
+          echo "$CHANGED_FILES"
+
+          # ✅ SAME: login (no change)
+          aws ecr get-login-password --region "${AWS_REGION}" \
+          | docker login --username AWS --password-stdin "${ECR_INFRA_REPO}"
+
+          # ✅ NEW: loop through each changed Dockerfile
+          for file in $CHANGED_FILES; do
+            echo "Processing $file"
+
+            # ✅ NEW: extract name from file (A.dockerfile → A)
+            image_name=$(basename "$file" .dockerfile)
+
+            echo "Building image: ${image_name}"
+
+            # ✅ CHANGED: dynamic Dockerfile instead of fixed dockerfiles/Dockerfile
+            docker build \
+              -f "$file" \
+              -t "${ECR_INFRA_REPO}:${image_name}-${VERSION_TAG}" \
+              -t "${ECR_INFRA_REPO}:${image_name}-latest" \
+              .
+
+            echo "Pushing image: ${image_name}"
+  
+            # ✅ CHANGED: push per-image
+            docker push "${ECR_INFRA_REPO}:${image_name}-${VERSION_TAG}"
+            docker push "${ECR_INFRA_REPO}:${image_name}-latest"
+          done
