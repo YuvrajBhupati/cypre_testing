@@ -71,6 +71,11 @@ jobs:
             echo "No Kubernetes manifests found. Skipping..."
           fi
 
+      - name: testing comment
+        uses: SonarSource/sonarqube-scan-action@v8
+        env:
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+          
       - name: Build & Push Docker images
         env:
           VERSION_TAG: ${{ github.sha }}
