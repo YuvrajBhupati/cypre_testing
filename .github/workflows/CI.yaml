@@ -80,7 +80,7 @@ jobs:
       - name: Sonar Link Summary
         run: |
            echo "### SonarQube Results" >> $GITHUB_STEP_SUMMARY
-           echo "${{ vars.SONAR_HOST_URL }}/dashboard?id=ses-engineering-suite-backend" >> $GITHUB_STEP_SUMMAR
+           echo "${{ vars.SONAR_HOST_URL }}/dashboard?id=ses-engineering-suite-backend" >> $GITHUB_STEP_SUMMARY
 
           
       - name: Build & Push Docker images
