@@ -82,6 +82,17 @@ jobs:
            echo "### SonarQube Results" >> $GITHUB_STEP_SUMMARY
            echo "${{ vars.SONAR_HOST_URL }}/dashboard?id=ses-engineering-suite-backend" >> $GITHUB_STEP_SUMMARY
 
+      - name: Comment Sonar URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: "Sonar Results: ${{ vars.SONAR_HOST_URL }}/dashboard?id=ses-engineering-suite-backend"
+            });
+
           
       - name: Build & Push Docker images
         env:
