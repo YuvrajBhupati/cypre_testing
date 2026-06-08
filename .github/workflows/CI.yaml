@@ -17,6 +17,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout repository
@@ -72,13 +73,27 @@ jobs:
             echo "No Kubernetes manifests found. Skipping..."
           fi
 
-      - name: Post Sonar link to PR
-        if: github.event_name == 'pull_request'
-        uses: mshick/add-pr-comment@v3
+      - name: Print Sonar Link
+        run: |
+          echo "View Sonar Results: ${{ vars.SONAR_HOST_URL }}/dashboard?id=ses-engineering-suite-backend"
+
+          
+      - name: Sonar Link Summary
+        run: |
+           echo "### SonarQube Results" >> $GITHUB_STEP_SUMMARY
+           echo "${{ vars.SONAR_HOST_URL }}/dashboard?id=ses-engineering-suite-backend" >> $GITHUB_STEP_SUMMARY
+
+      - name: Comment Sonar URL
+        uses: actions/github-script@v9
         with:
-          message: |
-           ✅ **SonarQube Results**
-            ${{ vars.SONAR_HOST_URL }}/dashboard?id=ses-engineering-suite-backend
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: "Sonar Results: ${{ vars.SONAR_HOST_URL }}/dashboard?id=ses-engineering-suite-backend"
+            });
+
           
       - name: Build & Push Docker images
         env:
